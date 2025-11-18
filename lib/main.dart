@@ -1,16 +1,17 @@
-import 'dart:convert'; // Required for Base64 decoding
-
 import 'package:flutter/material.dart';
+import 'package:hopelink/homepage.dart';
+import 'package:hopelink/reportdetail.dart';
+import 'package:hopelink/reportform.dart';
 
 String currentUserId = 'simulated_user_id';
-// Global counter for simulated document IDs
+// global counter for simulated document IDs
 int _reportIdCounter = 2;
 
-// Simulated Firestore Collection paths
+//simulated firestore collection paths
 String get _missingCollectionPath => 'reports/missing/data';
 String get _foundCollectionPath => 'reports/found/data';
 
-// A simulated database structure to hold all reports in memory
+//simulated database structure to hold all reports in memory
 Map<String, List<Report>> _simulatedDb = {
   'reports/missing/data': [
     Report(
@@ -20,8 +21,8 @@ Map<String, List<Report>> _simulatedDb = {
       description:
           'Small, worn blue backpack . Last seen near the library entrance.',
       date: DateTime.now().subtract(const Duration(days: 2)),
-      // UPDATED: More descriptive placeholder image
-      imageUrl: 'lib/assets/backpack.jpg',
+      // UPDATED: more descriptive placeholder image
+      imageUrl: 'assets/backpack.jpg',
       userId: currentUserId,
     ),
   ],
@@ -33,22 +34,23 @@ Map<String, List<Report>> _simulatedDb = {
       description:
           'Black framed reading glasses found on bench near the cafeteria.',
       date: DateTime.now().subtract(const Duration(hours: 5)),
-      imageUrl: 'lib/assets/glasses.jpg', // <-- HERE
+      //image
+      imageUrl: 'assets/glasses.jpg',
       userId: currentUserId,
     ),
   ],
 };
 
-// Simulated onSnapshot listener (reads from simulated DB)
+//simulated onSnapshot listener (reads from simulated DB)
 Stream<List<Report>> getReportsStream(ReportType type) async* {
   String path = type == ReportType.Missing
       ? _missingCollectionPath
       : _foundCollectionPath;
-  // This simulates a real-time stream by yielding the current state of the list.
+  //simulates a real-time stream by yielding the current state of the list.
   yield _simulatedDb[path] ?? [];
 }
 
-// Simulated addDoc function (writes to simulated DB)
+//simulated addDoc function (writes to simulated DB)
 Future<void> addReportToFirestore(Report report) async {
   String path = report.type == ReportType.Missing
       ? _missingCollectionPath
@@ -65,7 +67,7 @@ Future<void> addReportToFirestore(Report report) async {
     userId: currentUserId,
   );
 
-  // Simulate adding to the database list
+  //simulate adding to the database list
   if (_simulatedDb.containsKey(path)) {
     _simulatedDb[path]!.add(newReportWithId);
   } else {
@@ -73,7 +75,7 @@ Future<void> addReportToFirestore(Report report) async {
   }
 }
 
-// --- 1. DATA MODEL (Custom Object) ---
+//1. DATA MODEL (Custom Object)
 
 enum ReportType { Missing, Found }
 
@@ -84,7 +86,7 @@ class Report {
   final String description;
   final DateTime date;
   final String imageUrl;
-  final String userId; // Who submitted it (for persistence)
+  final String userId; //the one who submitted
 
   Report({
     required this.id,
@@ -97,12 +99,12 @@ class Report {
   });
 }
 
-// --- 2. MAIN APPLICATION SETUP ---
+//2. MAIN APPLICATION SETUP
 
 void main() {
-  // Simulate Firebase initialization
-  // In a real app: WidgetsFlutterBinding.ensureInitialized();
-  // In a real app: await Firebase.initializeApp();
+  //simulate firebase initialization
+  //in a real app: WidgetsFlutterBinding.ensureInitialized();
+  //in a real app: await Firebase.initializeApp();
   runApp(const MissingFoundApp());
 }
 
@@ -129,10 +131,10 @@ class MissingFoundApp extends StatelessWidget {
   }
 }
 
-// --- 3. STATEFUL WIDGET FOR GLOBAL DATA & NAVIGATION (USING STREAMS) ---
+//3. STATEFUL WIDGET FOR GLOBAL DATA & NAVIGATION
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key}); // Changed to MainScreen constructor
+  const MainScreen({super.key}); // changed to mainscreen constructor
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -141,16 +143,16 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // NOTE: Lists are now empty as they will be populated by the StreamBuilders
+  //PS:lists are now empty as they will be populated by the streambuilders
   List<Report> _missingItems = [];
   List<Report> _foundItems = [];
 
-  // Function to save a new report (uses simulated addDoc)
+  //function to save a new report
   Future<void> _addItem(Report newReport) async {
-    // In a real app, you would perform Firestore data validation here.
+    //in a real app, can perform firestore data validation here
     await addReportToFirestore(newReport);
 
-    // Navigate back to the main screen after submission
+    //navigate back to the main screen after submission
     if (mounted) {
       Navigator.pop(context);
     }
@@ -162,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  // This function builds the specific page based on the selected index
+  //this function builds the specific page based on the selected index
   Widget _getPage(int index) {
     switch (index) {
       case 0:
@@ -183,7 +185,7 @@ class _MainScreenState extends State<MainScreen> {
           },
         );
       case 2:
-        // Use StreamBuilder to get real-time Found data
+        //streamBuilder to get real-time found data
         return StreamBuilder<List<Report>>(
           stream: getReportsStream(ReportType.Found),
           builder: (context, snapshot) {
@@ -202,16 +204,16 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // --- BUILD METHOD FOR MAINSCREEN ---
+  //build method for main screen
   @override
   Widget build(BuildContext context) {
-    // Simulate initial Firebase authentication here
-    // In a real app: FirebaseAuth.instance.signInAnonymously();
+    //simulatation of initial firebase authentication here
+    //in a real app: FirebaseAuth.instance.signInAnonymously();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Lost and Found Tracker')),
-      body: _getPage(_selectedIndex), // Display the selected StreamBuilder/Page
-      // Floating Action Button to navigate to the form
+      body: _getPage(_selectedIndex), // display the selected streamBuilder/page
+      // floating action button to navigate to the form
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // Routing to Form Page
@@ -250,119 +252,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-// --- 4. HOMEPAGE (LANDING PAGE) ---
-
-class HomePage extends StatelessWidget {
-  final Function(int) onNavigate;
-  const HomePage({super.key, required this.onNavigate});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Icon(Icons.track_changes, size: 80, color: Colors.indigo.shade400),
-          const SizedBox(height: 16),
-          const Text(
-            'Welcome to the Lost & Found Tracker',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 30),
-
-          _SectionCard(
-            title: 'View Lost Items',
-            subtitle: 'Find items or people that have been reported lost.',
-            icon: Icons.person_search,
-            color: Colors.red.shade100,
-            onTap: () => onNavigate(1),
-          ),
-          const SizedBox(height: 20),
-
-          _SectionCard(
-            title: 'View Found Items',
-            subtitle:
-                'See items that have been reported found and are awaiting pickup.',
-            icon: Icons.location_on,
-            color: Colors.green.shade100,
-            onTap: () => onNavigate(2),
-          ),
-          const SizedBox(height: 20),
-          const Divider(),
-          const Text(
-            'Use the button below to submit a new report.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Stateless Helper Widget for HomePage
-class _SectionCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _SectionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(15),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 40, color: Colors.indigo.shade800),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(subtitle),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// --- 5. REPORT LIST PAGE (MISSING/FOUND LIST) ---
-
+//5.REPORT LIST PAGE (LOST/FOUND LIST)
 class ReportListPage extends StatelessWidget {
   final String title;
   final List<Report> reports;
@@ -457,346 +347,6 @@ class ReportListPage extends StatelessWidget {
                 ),
         ),
       ],
-    );
-  }
-}
-
-// --- 6. REPORT DETAIL PAGE ---
-
-class ReportDetailPage extends StatelessWidget {
-  final Report report;
-
-  const ReportDetailPage({super.key, required this.report});
-
-  // Helper to determine if the string is a Base64 image
-  bool _isBase64(String s) {
-    return s.length > 50 && !s.startsWith('http');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Check if the image URL is actually a Base64 string
-
-    Widget imageWidget;
-
-    // Check for asset image
-    if (report.imageUrl.startsWith('asset:')) {
-      final assetPath = report.imageUrl.replaceFirst('asset:', '');
-      imageWidget = Image.asset(
-        assetPath,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildErrorPlaceholder("Asset image not found.");
-        },
-      );
-    }
-    // Check for Base64
-    else if (_isBase64(report.imageUrl)) {
-      try {
-        final bytes = base64Decode(report.imageUrl);
-        imageWidget = Image.memory(bytes, fit: BoxFit.cover);
-      } catch (e) {
-        imageWidget = _buildErrorPlaceholder('Base64 Decoding Error');
-      }
-    }
-    // Otherwise treat as network
-    else {
-      imageWidget = Image.network(
-        report.imageUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildErrorPlaceholder("No Image Provided");
-        },
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: Text(report.name)),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Display Image (network or memory)
-            Container(
-              height: 500, // Increased height
-              width: double.infinity,
-              color: Colors.grey.shade200,
-              child: imageWidget,
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Status Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: report.type == ReportType.Missing
-                          ? Colors.red.shade600
-                          : Colors.green.shade600,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      report.type == ReportType.Missing
-                          ? 'MISSING REPORT'
-                          : 'FOUND REPORT',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
-                  const Text(
-                    'Details / Identification:',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    report.description,
-                    style: TextStyle(fontSize: 16, height: 1.5),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Date Reported
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.calendar_today,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Reported on: ${report.date.month}/${report.date.day}/${report.date.year}',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Custom error placeholder widget
-  Widget _buildErrorPlaceholder(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            report.type == ReportType.Missing
-                ? Icons.image_not_supported
-                : Icons.photo,
-            size: 50,
-            color: Colors.grey.shade600,
-          ),
-          const SizedBox(height: 8),
-          Text(message, style: TextStyle(color: Colors.grey.shade600)),
-        ],
-      ),
-    );
-  }
-}
-
-// --- 7. REPORT SUBMISSION FORM (Stateful Widget) ---
-
-class ReportFormPage extends StatefulWidget {
-  // Passing function as parameter
-  final Function(Report) onSubmit;
-
-  const ReportFormPage({super.key, required this.onSubmit});
-
-  @override
-  State<ReportFormPage> createState() => _ReportFormPageState();
-}
-
-class _ReportFormPageState extends State<ReportFormPage> {
-  final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String _description = '';
-  // Field for image URL / Base64 string
-  String _imageUrl = '';
-  ReportType _selectedType = ReportType.Missing;
-
-  void _submit() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      // Determine the final image URL: use the input if available, otherwise use a placeholder.
-      final String finalImageUrl = _imageUrl.isNotEmpty
-          ? _imageUrl
-          : (_selectedType == ReportType.Missing
-                ? 'https://placehold.co/600x400/FF5252/FFFFFF?text=MISSING+ITEM'
-                : 'https://placehold.co/600x400/4CAF50/FFFFFF?text=FOUND+ITEM');
-
-      // Create a new Report object
-      final newReport = Report(
-        // ID is placeholder for client side; Firestore generates the real ID on the server
-        id: '',
-        type: _selectedType,
-        name: _name,
-        description: _description,
-        date: DateTime.now(),
-        // UPDATED: Use the finalImageUrl
-        imageUrl: finalImageUrl,
-        userId: currentUserId,
-      );
-
-      // Call the passed function (which now runs addReportToFirestore)
-      await widget.onSubmit(newReport);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('New Report Submission')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Select Report Type (Missing or Found)
-              const Text(
-                'Report Type:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<ReportType>(
-                      title: const Text('Lost'),
-                      value: ReportType.Missing,
-                      groupValue: _selectedType,
-                      onChanged: (ReportType? value) {
-                        setState(() {
-                          _selectedType = value!;
-                        });
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<ReportType>(
-                      title: const Text('Found'),
-                      value: ReportType.Found,
-                      groupValue: _selectedType,
-                      onChanged: (ReportType? value) {
-                        setState(() {
-                          _selectedType = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 30),
-
-              // Text Field for Name
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Name/Title of Item or Person',
-                  hintText: 'e.g., Lost Wallet or Found Black Jacket',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  prefixIcon: Icon(Icons.label),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name or title.';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _name = value!,
-              ),
-              const SizedBox(height: 20),
-
-              // Text Field for Identification/Description
-              TextFormField(
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Identification/Description',
-                  hintText:
-                      'Describe details (color, size, unique features, location).',
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  prefixIcon: Padding(
-                    padding: EdgeInsets.only(bottom: 60),
-                    child: Icon(Icons.description),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please provide a detailed description.';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _description = value!,
-              ),
-              const SizedBox(height: 20),
-
-              // UPDATED: Text Field for Image URL or Base64
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Photo URL or Base64 String',
-                  hintText:
-                      'Paste a link (http) or a long Base64 string here (optional)',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  prefixIcon: Icon(Icons.image),
-                ),
-                onSaved: (value) => _imageUrl = value ?? '',
-              ),
-              const SizedBox(height: 40),
-
-              // Button (Submission Button)
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: _submit,
-                  icon: const Icon(Icons.send),
-                  label: const Text(
-                    'SUBMIT REPORT',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.indigo,
-                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    minimumSize: const Size(200, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
