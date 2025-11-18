@@ -22,7 +22,7 @@ Map<String, List<Report>> _simulatedDb = {
           'Small, worn blue backpack . Last seen near the library entrance.',
       date: DateTime.now().subtract(const Duration(days: 2)),
       // UPDATED: more descriptive placeholder image
-      imageUrl: 'assets/backpack.jpg',
+      imageUrl: 'assets/images/backpack.jpg',
       userId: currentUserId,
     ),
   ],
@@ -35,7 +35,7 @@ Map<String, List<Report>> _simulatedDb = {
           'Black framed reading glasses found on bench near the cafeteria.',
       date: DateTime.now().subtract(const Duration(hours: 5)),
       //image
-      imageUrl: 'assets/glasses.jpg',
+      imageUrl: 'assets/images/glasses.jpg',
       userId: currentUserId,
     ),
   ],
